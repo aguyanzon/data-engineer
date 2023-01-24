@@ -29,3 +29,5 @@ docker run -it \
 # sudo lsof -i :5432
 # sudo kill -9 <pid>
 # sudo lsof -i :5432
+
+# https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
