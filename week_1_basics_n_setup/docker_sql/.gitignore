@@ -2,5 +2,5 @@
 ny_taxi_postgres_data/
 *.csv
 *.parquet
-*.DS_STORE
+*.DS_Store
 *.csv.gz
