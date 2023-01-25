@@ -5,13 +5,13 @@
 2. Cloud Provider account: https://console.cloud.google.com/ 
 
 ### Terraform Concepts
-[Terraform Overview](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/week_1_basics_n_setup/1_terraform_gcp/2_gcp_overview.md#initial-setup)
+[Terraform Overview](1_terraform_overview.md)
 
 ### GCP setup
 
-1. [Setup for First-time](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/week_1_basics_n_setup/1_terraform_gcp/2_gcp_overview.md#initial-setup)
-    * [Only for Windows](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/week_1_basics_n_setup/1_terraform_gcp/windows.md) - Steps 4 & 5
-2. [IAM / Access specific to this course](https://github.com/DataTalksClub/data-engineering-zoomcamp/blob/main/week_1_basics_n_setup/1_terraform_gcp/2_gcp_overview.md#setup-for-access)
+1. [Setup for First-time](2_gcp_overview.md#initial-setup)
+    * [Only for Windows](windows.md) - Steps 4 & 5
+2. [IAM / Access specific to this course](2_gcp_overview.md#setup-for-access)
 
 ### Terraform Workshop for GCP Infra
 Your setup is ready!
