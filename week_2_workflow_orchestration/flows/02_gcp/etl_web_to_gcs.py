@@ -16,8 +16,8 @@ def fetch(dataset_url: str) -> pd.DataFrame:
 @task(log_prints=True)
 def clean(df= pd.DataFrame) -> pd.DataFrame:
     """Fix dtype issues"""
-    df['lpep_pickup_datetime'] = pd.to_datetime(df['lpep_pickup_datetime'])
-    df['lpep_dropoff_datetime'] = pd.to_datetime(df['lpep_dropoff_datetime'])
+    df['tpep_pickup_datetime'] = pd.to_datetime(df['tpep_pickup_datetime'])
+    df['tpep_dropoff_datetime'] = pd.to_datetime(df['tpep_dropoff_datetime'])
     
     print(f'Total of rows: {df.shape}')
     return df
@@ -29,7 +29,7 @@ def write_local(df: pd.DataFrame, color: str, dataset_file: str) -> Path:
     df.to_parquet(path, compression="gzip")
     return path
 
-@task(retries=3)
+@task()
 def write_gcs(path: Path) -> None:
     """Uploading local parquet file to GCS"""
     gcs_block = GcsBucket.load("zoom-gcs")
@@ -44,14 +44,14 @@ def etl_web_to_gcs() -> None:
     """The main ETL function"""
     color = "green"
     year = 2020
-    month = 1
+    month = 11
     dataset_file = f"{color}_tripdata_{year}-{month:02}"
     dataset_url = f"https://github.com/DataTalksClub/nyc-tlc-data/releases/download/{color}/{dataset_file}.csv.gz"
 
     df = fetch(dataset_url)
     df_clean = clean(df)
     path = write_local(df, color, dataset_file)
-    write_gcs(path)
+    #write_gcs(path)
 
 
 if __name__ == '__main__':
