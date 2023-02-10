@@ -34,7 +34,7 @@ def upload_to_gcs(bucket, object_name, local_file):
 
 
 def web_to_gcs(year, service):
-    for i in range(12):
+    for i in range(1,12):
         
         # sets the month part of the file_name string
         month = '0'+str(i+1)
@@ -45,13 +45,13 @@ def web_to_gcs(year, service):
 
         # download it using requests via a pandas df
         request_url = init_url + file_name
+        print(f'---> Downloading {file_name}')
         r = requests.get(request_url)
         pd.DataFrame(io.StringIO(r.text)).to_csv(f'files/{file_name}')
-        print(f"Local: {file_name}")
-
+        print('---> Succesfully downloaded')
         # upload it to gcs 
         upload_to_gcs(BUCKET, f"{service}/{file_name}", f'files/{file_name}')
-        print(f"GCS: {service}/{file_name}")
+        print(f'---> Succesfully upload to GCS: {service}/{file_name}')
 
 
 web_to_gcs('2019', 'fhv')
