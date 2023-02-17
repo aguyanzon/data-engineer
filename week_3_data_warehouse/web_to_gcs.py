@@ -54,4 +54,19 @@ def web_to_gcs(year, service):
         print(f'---> Succesfully upload to GCS: {service}/{file_name}')
 
 
-web_to_gcs('2019', 'fhv')
+def csv_conversion(year, service):
+    for i in range(12):
+        
+        # sets the month part of the file_name string
+        month = '0'+str(i+1)
+        month = month[-2:]
+
+        # csv file_name 
+        file_name = service + '_tripdata_' + year + '-' + month + '.csv.gz'
+
+        df = pd.read_csv(f'files/{file_name}')
+        file_name = file_name[:24]
+        df.to_csv(f'csv_files/{file_name}', index=False)
+
+#web_to_gcs('2019', 'fhv')
+csv_conversion('2019', 'fhv')
