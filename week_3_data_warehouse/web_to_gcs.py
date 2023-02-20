@@ -4,6 +4,7 @@ import requests
 import pandas as pd
 import pyarrow
 from google.cloud import storage
+import wget
 
 """
 Pre-reqs: 
@@ -13,7 +14,7 @@ Pre-reqs:
 """
 
 # services = ['fhv','green','yellow']
-init_url = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/fhv/'
+init_url = 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/'
 # switch out the bucketname
 BUCKET = os.environ.get("GCP_GCS_BUCKET", "dtc_data_lake_dtc-de-375812")
 
@@ -24,8 +25,8 @@ def upload_to_gcs(bucket, object_name, local_file):
     """
     # # WORKAROUND to prevent timeout for files > 6 MB on 800 kbps upload speed.
     # # (Ref: https://github.com/googleapis/python-storage/issues/74)
-    # storage.blob._MAX_MULTIPART_SIZE = 5 * 1024 * 1024  # 5 MB
-    # storage.blob._DEFAULT_CHUNKSIZE = 5 * 1024 * 1024  # 5 MB
+    storage.blob._MAX_MULTIPART_SIZE = 5 * 1024 * 1024  # 5 MB
+    storage.blob._DEFAULT_CHUNKSIZE = 5 * 1024 * 1024  # 5 MB
 
     client = storage.Client()
     bucket = client.bucket(bucket)
@@ -33,8 +34,8 @@ def upload_to_gcs(bucket, object_name, local_file):
     blob.upload_from_filename(local_file)
 
 
-def web_to_gcs(year, service):
-    for i in range(1,12):
+def web_to_gcs(year, service, init_url):
+    for i in range(12):
         
         # sets the month part of the file_name string
         month = '0'+str(i+1)
@@ -45,28 +46,24 @@ def web_to_gcs(year, service):
 
         # download it using requests via a pandas df
         request_url = init_url + file_name
-        print(f'---> Downloading {file_name}')
-        r = requests.get(request_url)
-        pd.DataFrame(io.StringIO(r.text)).to_csv(f'files/{file_name}')
-        print('---> Succesfully downloaded')
+        #r = requests.get(request_url)
+        # pd.DataFrame(io.StringIO(r.text)).to_csv(f'files/{file_name}')
+        wget.download(request_url, out=f'files/{file_name}')
+        print(f"Local: {file_name}")
+
+        # read it back into a parquet file
+        df = pd.read_csv(f'files/{file_name}')
+        file_name = file_name.replace('.csv.gz', '.parquet')
+        df.to_parquet(f'files/{file_name}', engine='pyarrow', index=False)
+        print(f"Parquet: {file_name}")
+
         # upload it to gcs 
         upload_to_gcs(BUCKET, f"{service}/{file_name}", f'files/{file_name}')
-        print(f'---> Succesfully upload to GCS: {service}/{file_name}')
+        print(f"GCS: {service}/{file_name}")
 
 
-def csv_conversion(year, service):
-    for i in range(12):
-        
-        # sets the month part of the file_name string
-        month = '0'+str(i+1)
-        month = month[-2:]
-
-        # csv file_name 
-        file_name = service + '_tripdata_' + year + '-' + month + '.csv.gz'
-
-        df = pd.read_csv(f'files/{file_name}')
-        file_name = file_name[:24]
-        df.to_csv(f'csv_files/{file_name}', index=False)
-
-#web_to_gcs('2019', 'fhv')
-csv_conversion('2019', 'fhv')
+web_to_gcs('2019', 'green', init_url + 'green/')
+web_to_gcs('2020', 'green', init_url + 'green/')
+web_to_gcs('2019', 'yellow', init_url + 'yellow/')
+web_to_gcs('2020', 'yellow', init_url + 'yellow/')
+web_to_gcs('2019', 'fhv', init_url + 'fhv/')
